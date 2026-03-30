@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kies uw afhaalmoment</title>
     <!--
-        Font Awesome 4 — same source as your WooCommerce plugin.
-        On the live site FA is already loaded globally; remove this link there.
+        Font Awesome 4.7 from cdnjs (public CDN, no CORS issues).
+        On your live WordPress site FA is already loaded by the plugin — remove this line.
     -->
-    <link rel="stylesheet" href="https://tubotek.be/wp-content/plugins/attachment-tab-for-woocommerce/css/font-awesome.min.css?ver=1.1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         /* =====================================================
            ALL styles scoped under .checkout-pickup-widget
@@ -60,7 +60,8 @@
         .cpw-product__img {
             width: 120px; height: 120px;
             object-fit: contain; flex-shrink: 0;
-            border-radius: 8px; background: #fafafa;
+            border-radius: 8px; background: #f0f0f0;
+            display: block;
         }
         .cpw-product__info { flex: 1; min-width: 0; }
         .cpw-product__info h2 { margin: 0 0 10px 0; font-size: 17px; font-weight: 700; line-height: 1.4; }
@@ -111,11 +112,6 @@
         /* Time slots panel */
         .cpw-times__heading { font-size: 20px; font-weight: 700; margin: 0 0 28px 0; }
         .cpw-time-group { margin-bottom: 32px; }
-
-        /*
-         * Label: icon and text at THE SAME SIZE (15px).
-         * FA icon uses font-size:1em so it inherits from the parent — guaranteed equal.
-         */
         .cpw-time-group__label {
             display: flex; align-items: center; gap: 7px;
             font-weight: 600; font-size: 15px; margin-bottom: 14px; color: #1d1d1f;
@@ -124,7 +120,6 @@
 
         .cpw-slots { display: flex; flex-wrap: wrap; gap: 10px; }
 
-        /* Pills — 15px to match screenshot large rounded buttons */
         .cpw-pill {
             background: var(--cpw-pill-dark); color: #fff;
             border: 2px solid transparent; padding: 12px 26px;
@@ -181,11 +176,6 @@
 </head>
 <body style="background:#f8f8f8; padding:20px; margin:0;">
 
-<!--
-    ROOT WRAPPER .checkout-pickup-widget
-    Drop this block into your WooCommerce checkout template.
-    Hook: add_action('woocommerce_review_order_before_submit', ...)
--->
 <div class="checkout-pickup-widget">
 
     <h1 class="cpw-title">
@@ -195,7 +185,13 @@
 
     <!-- Product Summary -->
     <div class="cpw-product">
-        <img src="https://via.placeholder.com/120x120?text=Product" alt="Product" class="cpw-product__img">
+        <!--
+            Replace the src below with your actual product image URL.
+            Using a reliable placeholder that works in all browsers.
+        -->
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='%23e8e8e8' rx='8'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='11' fill='%23999'%3EProduct%3C/text%3E%3C/svg%3E"
+             alt="Product"
+             class="cpw-product__img">
         <div class="cpw-product__info">
             <h2>Marstek Venus E 5 kWh versie 3.0 plug-in en play thuisbatterijen met stekker voor stopcontact</h2>
             <p>
@@ -234,7 +230,6 @@
         <main class="cpw-times">
             <h3 class="cpw-times__heading" id="cpwTimeHeader">Selecteer een tijdstip</h3>
 
-            <!-- Voormiddag: fa-sun-o (outlined sun, FA4) -->
             <div class="cpw-time-group">
                 <div class="cpw-time-group__label">
                     <i class="fa fa-sun-o" aria-hidden="true"></i>Voormiddag
@@ -242,7 +237,6 @@
                 <div class="cpw-slots" id="cpwMorningSlots"></div>
             </div>
 
-            <!-- Namiddag: fa-sun-o -->
             <div class="cpw-time-group">
                 <div class="cpw-time-group__label">
                     <i class="fa fa-sun-o" aria-hidden="true"></i>Namiddag
@@ -250,7 +244,6 @@
                 <div class="cpw-slots" id="cpwAfternoonSlots"></div>
             </div>
 
-            <!-- 's Avonds: fa-moon-o (outlined crescent, FA4) -->
             <div class="cpw-time-group">
                 <div class="cpw-time-group__label">
                     <i class="fa fa-moon-o" aria-hidden="true"></i>'s Avonds
@@ -267,7 +260,8 @@
 </div>
 
 <script>
-(function () {
+/* Wrapped in DOMContentLoaded to guarantee DOM is ready regardless of where this script is placed */
+document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
     var MORNING_SLOTS   = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00'];
@@ -309,8 +303,8 @@
         for (var d = 1; d <= daysInMonth; d++) {
             var date = new Date(viewYear, viewMonth, d);
             var dow  = date.getDay();
-            if (dow === 0 || dow === 6) continue;
-            if (date < today) continue;
+            if (dow === 0 || dow === 6) continue; /* skip weekends */
+            if (date < today) continue;            /* skip past dates */
 
             var btn = document.createElement('button');
             btn.className   = 'cpw-day';
@@ -395,23 +389,24 @@
         if (!selectedDate || !selectedTime) return;
         var d   = selectedDate.getDate();
         var mon = NL_MONTHS[selectedDate.getMonth()];
+        var label = d + ' ' + mon + ' ' + selectedDate.getFullYear() + ' om ' + selectedTime;
         var ev  = new CustomEvent('cpw:confirmed', {
             bubbles: true,
             detail: {
                 date:  selectedDate.toISOString().split('T')[0],
                 time:  selectedTime,
-                label: d + ' ' + mon + ' ' + selectedDate.getFullYear() + ' om ' + selectedTime
+                label: label
             }
         });
         document.querySelector('.checkout-pickup-widget').dispatchEvent(ev);
-        alert('Bevestigd: ' + d + ' ' + mon + ' ' + selectedDate.getFullYear() + ' om ' + selectedTime);
+        alert('Bevestigd: ' + label);
     });
 
+    /* Init */
     renderCalendar();
     renderAllSlots();
     updateConfirm();
-
-})();
+});
 </script>
 
 </body>
