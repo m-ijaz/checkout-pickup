@@ -5,275 +5,556 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kies uw afhaalmoment</title>
     <style>
-        :root {
-            --bg-body: #f8f8f8;
-            --bg-card: #ffffff;
-            --bg-sidebar: #ededed;
-            --dark-pill: #1d1d1f;
-            --text-main: #000000;
-            --text-muted: #86868b;
-            --border-radius: 12px;
+        /* =====================================================
+           ALL styles scoped under .checkout-pickup-widget
+           Safe to embed inside WordPress / WooCommerce checkout
+           ===================================================== */
+
+        .checkout-pickup-widget *,
+        .checkout-pickup-widget *::before,
+        .checkout-pickup-widget *::after {
+            box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-        }
+        .checkout-pickup-widget {
+            --cpw-bg-body:    #f8f8f8;
+            --cpw-bg-card:    #ffffff;
+            --cpw-bg-sidebar: #ededed;
+            --cpw-pill-dark:  #1d1d1f;
+            --cpw-text-main:  #000000;
+            --cpw-text-muted: #86868b;
+            --cpw-radius:     12px;
+            --cpw-selected:   #1d1d1f;
 
-        .container {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                         Helvetica, Arial, sans-serif;
+            background: var(--cpw-bg-card);
+            color: var(--cpw-text-main);
+            border-radius: 20px;
+            padding: 40px;
             max-width: 1100px;
             margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.06);
         }
 
-        .main-title {
+        /* ── Title ───────────────────────────────────────── */
+        .cpw-title {
             font-size: 22px;
             font-weight: 700;
-            margin-bottom: 30px;
+            margin: 0 0 30px 0;
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        /* Product Header Section */
-        .product-summary {
+        /* ── Product summary ─────────────────────────────── */
+        .cpw-product {
             display: flex;
             gap: 30px;
             margin-bottom: 40px;
             padding-bottom: 30px;
             border-bottom: 1px solid #f0f0f0;
+            align-items: flex-start;
         }
 
-        .product-img {
+        .cpw-product__img {
             width: 130px;
             height: 130px;
             object-fit: contain;
+            flex-shrink: 0;
+            border-radius: 8px;
+            background: #fafafa;
         }
 
-        .product-info { flex: 1; }
-        .product-info h2 { margin: 0 0 12px 0; font-size: 20px; line-height: 1.3; }
-        .product-info p { margin: 0; font-size: 14px; color: #444; line-height: 1.6; }
+        .cpw-product__info {
+            flex: 1;
+        }
 
-        .product-price { text-align: right; }
-        .price-excl { display: block; font-size: 22px; font-weight: 700; }
-        .price-incl { display: block; font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+        .cpw-product__info h2 {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
 
-        /* Selector Grid */
-        .selector-layout {
+        .cpw-product__info p {
+            margin: 0;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .cpw-product__price {
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .cpw-product__price-excl {
+            display: block;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .cpw-product__price-incl {
+            display: block;
+            font-size: 13px;
+            color: var(--cpw-text-muted);
+            margin-top: 4px;
+        }
+
+        /* ── Two-column layout ───────────────────────────── */
+        .cpw-layout {
             display: grid;
-            grid-template-columns: 310px 1fr;
+            grid-template-columns: 300px 1fr;
             gap: 50px;
         }
 
-        /* Calendar Sidebar */
-        .sidebar h3 { font-size: 18px; margin-bottom: 25px; text-align: center; font-weight: 600; }
-        
-        .calendar-box {
-            background-color: var(--bg-sidebar);
-            border-radius: var(--border-radius);
-            padding: 25px 20px;
+        /* ── Calendar sidebar ────────────────────────────── */
+        .cpw-sidebar__heading {
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            margin: 0 0 20px 0;
         }
 
-        .calendar-nav {
+        .cpw-calendar {
+            background: var(--cpw-bg-sidebar);
+            border-radius: var(--cpw-radius);
+            padding: 22px 18px;
+        }
+
+        .cpw-cal-nav {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-        .nav-arrow { border: none; background: none; cursor: pointer; font-size: 16px; font-weight: bold; }
-
-        .calendar-header-days {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            text-align: center;
-            font-weight: 600;
-            font-size: 13px;
-            color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 22px;
         }
 
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            text-align: center;
+        .cpw-cal-nav__label {
+            font-weight: 700;
+            font-size: 15px;
         }
 
-        .day {
-            padding: 10px 0;
+        .cpw-cal-nav__btn {
+            background: none;
+            border: none;
             cursor: pointer;
-            border-radius: 50%;
-            font-size: 14px;
-            font-weight: 500;
-            aspect-ratio: 1/1;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--cpw-text-main);
+            padding: 4px 8px;
+            border-radius: 6px;
+            line-height: 1;
+            transition: background 0.15s;
+        }
+
+        .cpw-cal-nav__btn:hover {
+            background: rgba(0,0,0,0.08);
+        }
+
+        .cpw-cal-nav__btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .cpw-cal-headers {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            text-align: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .cpw-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .cpw-day {
+            aspect-ratio: 1 / 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+            border: none;
+            background: none;
+            color: var(--cpw-text-main);
         }
 
-        .day:hover:not(.empty) { background-color: rgba(0,0,0,0.05); }
-        .day.selected { background-color: #d2d2d7; position: relative; }
-        .day.selected::after {
+        .cpw-day:hover {
+            background: rgba(0,0,0,0.07);
+        }
+
+        .cpw-day--selected {
+            background: var(--cpw-selected) !important;
+            color: #fff !important;
+        }
+
+        .cpw-day--today:not(.cpw-day--selected)::after {
             content: '';
             position: absolute;
             bottom: 4px;
-            width: 5px;
-            height: 5px;
-            background: #6e6e73;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--cpw-selected);
             border-radius: 50%;
         }
 
-        /* Time Section */
-        .time-content h3 { font-size: 20px; margin-bottom: 35px; font-weight: 700; }
-        
-        .time-group { margin-bottom: 40px; }
-        .group-label {
+        /* ── Time slots panel ────────────────────────────── */
+        .cpw-times__heading {
+            font-size: 19px;
+            font-weight: 700;
+            margin: 0 0 30px 0;
+        }
+
+        .cpw-time-group {
+            margin-bottom: 36px;
+        }
+
+        .cpw-time-group__label {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 18px;
+            font-size: 14px;
+            margin-bottom: 14px;
             color: #1d1d1f;
         }
 
-        .slots-flex {
+        .cpw-slots {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .time-pill {
-            background-color: var(--dark-pill);
-            color: white;
-            border: none;
-            padding: 11px 26px;
+        .cpw-pill {
+            background: var(--cpw-pill-dark);
+            color: #fff;
+            border: 2px solid transparent;
+            padding: 10px 22px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             cursor: pointer;
-            min-width: 85px;
+            min-width: 80px;
+            text-align: center;
+            transition: background 0.15s, box-shadow 0.15s;
         }
 
-        .time-pill:hover { background-color: #333; }
-        .time-pill.active { background-color: #555; box-shadow: 0 0 0 2px #000; }
+        .cpw-pill:hover {
+            background: #333;
+        }
 
-        @media (max-width: 900px) {
-            .selector-layout { grid-template-columns: 1fr; }
-            .container { padding: 20px; }
-            .sidebar { max-width: 350px; margin: 0 auto; }
+        .cpw-pill--active {
+            background: #fff !important;
+            color: var(--cpw-pill-dark) !important;
+            border-color: var(--cpw-pill-dark) !important;
+            box-shadow: 0 0 0 2px var(--cpw-pill-dark);
+        }
+
+        /* ── Confirm button ──────────────────────────────── */
+        .cpw-confirm {
+            margin-top: 10px;
+        }
+
+        .cpw-confirm__btn {
+            background: var(--cpw-pill-dark);
+            color: #fff;
+            border: none;
+            padding: 14px 36px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .cpw-confirm__btn:hover {
+            background: #333;
+        }
+
+        .cpw-confirm__btn:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .cpw-confirm__note {
+            font-size: 12px;
+            color: var(--cpw-text-muted);
+            margin-top: 10px;
+        }
+
+        /* ── Responsive ──────────────────────────────────── */
+        @media (max-width: 860px) {
+            .checkout-pickup-widget {
+                padding: 24px 18px;
+            }
+
+            .cpw-layout {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .cpw-product {
+                flex-wrap: wrap;
+            }
+
+            .cpw-product__price {
+                text-align: left;
+                width: 100%;
+            }
         }
     </style>
 </head>
-<body>
+<body style="background:#f8f8f8; padding:20px; margin:0;">
 
-<div class="container">
-    <h1 class="main-title">🗓 Kies uw afhaalmoment</h1>
+<!--
+    ROOT WRAPPER: .checkout-pickup-widget
+    All CSS is scoped under this class.
+    Drop this entire block into your WordPress / WooCommerce template.
+    The <style> block above can go into your theme's custom CSS or a <style> tag in the template.
+-->
+<div class="checkout-pickup-widget">
 
-    <div class="product-summary">
-        <img src="https://via.placeholder.com/150" alt="Product" class="product-img">
-        <div class="product-info">
-            <h2>Marstek venus E 5Kwh versie 3.0 plug-in en play thuisbatterijen met stekker voor stopcontact</h2>
-            <p>Schaal: 1 batterij 5 Kwh<br>
-               Sturing aan je digitale meter: Zonder P1 meter<br>
-               Splitter: Zonder splitter voor digitale meter<br>
-               Installatie locatie: Ik plaats de batterij in België (incl. Bebat)</p>
+    <h1 class="cpw-title">&#x1F4C5; Kies uw afhaalmoment</h1>
+
+    <!-- Product Summary -->
+    <div class="cpw-product">
+        <img src="https://via.placeholder.com/130x130?text=Product" alt="Product" class="cpw-product__img">
+        <div class="cpw-product__info">
+            <h2>Marstek Venus E 5 kWh versie 3.0 plug-in en play thuisbatterijen met stekker voor stopcontact</h2>
+            <p>
+                Schaal: 1 batterij 5 kWh<br>
+                Sturing aan je digitale meter: Zonder P1 meter<br>
+                Splitter: Zonder splitter voor digitale meter<br>
+                Installatie locatie: Ik plaats de batterij in België (incl. Bebat)
+            </p>
         </div>
-        <div class="product-price">
-            <span class="price-excl">€1.070,00 Excl. BTW</span>
-            <span class="price-incl">€1.294,70 incl. BTW</span>
+        <div class="cpw-product__price">
+            <span class="cpw-product__price-excl">€1.070,00 excl. BTW</span>
+            <span class="cpw-product__price-incl">€1.294,70 incl. BTW</span>
         </div>
     </div>
 
-    <div class="selector-layout">
-        <aside class="sidebar">
-            <h3>Selecteer een datum</h3>
-            <div class="calendar-box">
-                <div class="calendar-nav">
-                    <span>Apr 2026</span>
-                    <button class="nav-arrow">❯</button>
+    <!-- Selector Layout -->
+    <div class="cpw-layout">
+
+        <!-- Calendar Sidebar -->
+        <aside class="cpw-sidebar">
+            <h3 class="cpw-sidebar__heading">Selecteer een datum</h3>
+            <div class="cpw-calendar">
+                <div class="cpw-cal-nav">
+                    <button class="cpw-cal-nav__btn" id="cpwPrevMonth" aria-label="Vorige maand">&#8249;</button>
+                    <span class="cpw-cal-nav__label" id="cpwMonthLabel"></span>
+                    <button class="cpw-cal-nav__btn" id="cpwNextMonth" aria-label="Volgende maand">&#8250;</button>
                 </div>
-                <div class="calendar-header-days">
-                    <span>Ma</span><span>Di</span><span>Woe</span><span>Don</span><span>Vrij</span>
+                <div class="cpw-cal-headers">
+                    <span>Ma</span><span>Di</span><span>Wo</span><span>Do</span><span>Vr</span>
                 </div>
-                <div class="calendar-grid" id="calendarGrid"></div>
+                <div class="cpw-cal-grid" id="cpwCalGrid"></div>
             </div>
         </aside>
 
-        <main class="time-content">
-            <h3 id="timeHeader">Selecteer een tijdstip voor vrijdag 21 april</h3>
-            
-            <div class="time-group">
-                <div class="group-label">☀️ Voormiddag</div>
-                <div class="slots-flex" id="morningSlots"></div>
+        <!-- Time Slots -->
+        <main class="cpw-times">
+            <h3 class="cpw-times__heading" id="cpwTimeHeader">Selecteer een tijdstip</h3>
+
+            <div class="cpw-time-group">
+                <div class="cpw-time-group__label">&#x2600;&#xFE0F; Voormiddag</div>
+                <div class="cpw-slots" id="cpwMorningSlots"></div>
             </div>
 
-            <div class="time-group">
-                <div class="group-label">🌤 Namiddag</div>
-                <div class="slots-flex" id="afternoonSlots"></div>
+            <div class="cpw-time-group">
+                <div class="cpw-time-group__label">&#x1F324; Namiddag</div>
+                <div class="cpw-slots" id="cpwAfternoonSlots"></div>
             </div>
 
-            <div class="time-group">
-                <div class="group-label">🌙 's avonds</div>
-                <div class="slots-flex" id="eveningSlots"></div>
+            <div class="cpw-time-group">
+                <div class="cpw-time-group__label">&#x1F319; 's Avonds</div>
+                <div class="cpw-slots" id="cpwEveningSlots"></div>
+            </div>
+
+            <div class="cpw-confirm">
+                <button class="cpw-confirm__btn" id="cpwConfirmBtn" disabled>Bevestig afhaalmoment</button>
+                <p class="cpw-confirm__note" id="cpwConfirmNote">Selecteer eerst een datum en tijdstip.</p>
             </div>
         </main>
     </div>
 </div>
 
 <script>
-    const morningArr = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00'];
-    const afternoonArr = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'];
-    const eveningArr = ['17:30', '18:00'];
+(function () {
+    'use strict';
 
+    /* ── Configuration ─────────────────────────────────────────── */
+    const MORNING_SLOTS   = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00'];
+    const AFTERNOON_SLOTS = ['13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+    const EVENING_SLOTS   = ['17:30','18:00','18:30'];
+
+    const NL_MONTHS = ['januari','februari','maart','april','mei','juni',
+                       'juli','augustus','september','oktober','november','december'];
+    const NL_DAYS   = ['maandag','dinsdag','woensdag','donderdag','vrijdag'];
+
+    /* ── State ─────────────────────────────────────────────────── */
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    let viewYear  = today.getFullYear();
+    let viewMonth = today.getMonth();   // 0-based
+    let selectedDate = null;            // Date object
+    let selectedTime = null;            // string e.g. "09:00"
+
+    /* ── DOM refs ──────────────────────────────────────────────── */
+    const calGrid      = document.getElementById('cpwCalGrid');
+    const monthLabel   = document.getElementById('cpwMonthLabel');
+    const prevBtn      = document.getElementById('cpwPrevMonth');
+    const nextBtn      = document.getElementById('cpwNextMonth');
+    const timeHeader   = document.getElementById('cpwTimeHeader');
+    const confirmBtn   = document.getElementById('cpwConfirmBtn');
+    const confirmNote  = document.getElementById('cpwConfirmNote');
+
+    /* ── Calendar rendering ────────────────────────────────────── */
     function renderCalendar() {
-        const grid = document.getElementById('calendarGrid');
-        // Mimicking your 5-day week layout (April 2026)
-        const days = [2,3,4,5,6, 9,10,11,12,13, 16,17,18,19,20, 23,24,25,26,27, 30];
+        calGrid.innerHTML = '';
+        monthLabel.textContent = NL_MONTHS[viewMonth] + ' ' + viewYear;
 
-        days.forEach(d => {
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'day';
-            dayDiv.innerText = d;
-            if(d === 19) dayDiv.classList.add('selected');
-            dayDiv.onclick = () => {
-                document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
-                dayDiv.classList.add('selected');
-                document.getElementById('timeHeader').innerText = `Selecteer een tijdstip voor dag ${d} april`;
-            };
-            grid.appendChild(dayDiv);
-        });
+        // Disable prev if we're already at current month
+        const nowMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const viewFirst = new Date(viewYear, viewMonth, 1);
+        prevBtn.disabled = viewFirst <= nowMonth;
+
+        // Find weekdays (Mon–Fri) in this month
+        const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(viewYear, viewMonth, d);
+            const dow  = date.getDay(); // 0=Sun … 6=Sat
+            if (dow === 0 || dow === 6) continue; // skip weekends
+            if (date < today) continue;           // skip past dates
+
+            const btn = document.createElement('button');
+            btn.className = 'cpw-day';
+            btn.textContent = d;
+            btn.setAttribute('data-date', date.toISOString());
+            btn.setAttribute('aria-label', NL_DAYS[dow - 1] + ' ' + d + ' ' + NL_MONTHS[viewMonth]);
+
+            if (date.getTime() === today.getTime()) {
+                btn.classList.add('cpw-day--today');
+            }
+
+            if (selectedDate && date.getTime() === selectedDate.getTime()) {
+                btn.classList.add('cpw-day--selected');
+            }
+
+            btn.addEventListener('click', function () {
+                selectedDate = date;
+                selectedTime = null;
+                renderCalendar();
+                updateTimeHeader();
+                renderAllSlots();
+                updateConfirm();
+            });
+
+            calGrid.appendChild(btn);
+        }
     }
 
-    function renderTimeSlots(containerId, times) {
+    /* ── Month navigation ──────────────────────────────────────── */
+    prevBtn.addEventListener('click', function () {
+        if (viewMonth === 0) { viewMonth = 11; viewYear--; }
+        else { viewMonth--; }
+        renderCalendar();
+    });
+
+    nextBtn.addEventListener('click', function () {
+        if (viewMonth === 11) { viewMonth = 0; viewYear++; }
+        else { viewMonth++; }
+        renderCalendar();
+    });
+
+    /* ── Time header ───────────────────────────────────────────── */
+    function updateTimeHeader() {
+        if (!selectedDate) {
+            timeHeader.textContent = 'Selecteer een tijdstip';
+            return;
+        }
+        const dow = selectedDate.getDay(); // 1–5
+        const dayName = NL_DAYS[dow - 1];
+        const d   = selectedDate.getDate();
+        const mon = NL_MONTHS[selectedDate.getMonth()];
+        timeHeader.textContent = 'Selecteer een tijdstip voor ' + dayName + ' ' + d + ' ' + mon;
+    }
+
+    /* ── Time slots ────────────────────────────────────────────── */
+    function renderSlots(containerId, times) {
         const container = document.getElementById(containerId);
-        times.forEach(t => {
+        container.innerHTML = '';
+        times.forEach(function (t) {
             const btn = document.createElement('button');
-            btn.className = 'time-pill';
-            btn.innerText = t;
-            btn.onclick = () => {
-                document.querySelectorAll('.time-pill').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            };
+            btn.className = 'cpw-pill';
+            btn.textContent = t;
+            if (selectedTime === t) btn.classList.add('cpw-pill--active');
+            btn.addEventListener('click', function () {
+                selectedTime = t;
+                renderAllSlots();
+                updateConfirm();
+            });
             container.appendChild(btn);
         });
     }
 
-    window.onload = () => {
-        renderCalendar();
-        renderTimeSlots('morningSlots', morningArr);
-        renderTimeSlots('afternoonSlots', afternoonArr);
-        renderTimeSlots('eveningSlots', eveningArr);
-    };
+    function renderAllSlots() {
+        renderSlots('cpwMorningSlots',   MORNING_SLOTS);
+        renderSlots('cpwAfternoonSlots', AFTERNOON_SLOTS);
+        renderSlots('cpwEveningSlots',   EVENING_SLOTS);
+    }
+
+    /* ── Confirm button ────────────────────────────────────────── */
+    function updateConfirm() {
+        const ready = selectedDate && selectedTime;
+        confirmBtn.disabled = !ready;
+        if (ready) {
+            const d   = selectedDate.getDate();
+            const mon = NL_MONTHS[selectedDate.getMonth()];
+            confirmNote.textContent = 'Gekozen: ' + d + ' ' + mon + ' ' + selectedDate.getFullYear() + ' om ' + selectedTime;
+        } else {
+            confirmNote.textContent = 'Selecteer eerst een datum en tijdstip.';
+        }
+    }
+
+    confirmBtn.addEventListener('click', function () {
+        if (!selectedDate || !selectedTime) return;
+        const d   = selectedDate.getDate();
+        const mon = NL_MONTHS[selectedDate.getMonth()];
+        // Dispatch a custom event so WordPress / WooCommerce can listen
+        const event = new CustomEvent('cpw:confirmed', {
+            bubbles: true,
+            detail: {
+                date: selectedDate.toISOString().split('T')[0],
+                time: selectedTime,
+                label: d + ' ' + mon + ' ' + selectedDate.getFullYear() + ' om ' + selectedTime
+            }
+        });
+        document.querySelector('.checkout-pickup-widget').dispatchEvent(event);
+        alert('Bevestigd: ' + d + ' ' + mon + ' ' + selectedDate.getFullYear() + ' om ' + selectedTime);
+    });
+
+    /* ── Init ──────────────────────────────────────────────────── */
+    renderCalendar();
+    renderAllSlots();
+    updateConfirm();
+
+})();
 </script>
 
 </body>
