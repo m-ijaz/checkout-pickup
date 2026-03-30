@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kies uw afhaalmoment</title>
+    <style>
+        :root {
+            --bg-body: #f8f8f8;
+            --bg-card: #ffffff;
+            --bg-sidebar: #ededed;
+            --dark-pill: #1d1d1f;
+            --text-main: #000000;
+            --text-muted: #86868b;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        }
+
+        .main-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Product Header Section */
+        .product-summary {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-img {
+            width: 130px;
+            height: 130px;
+            object-fit: contain;
+        }
+
+        .product-info { flex: 1; }
+        .product-info h2 { margin: 0 0 12px 0; font-size: 20px; line-height: 1.3; }
+        .product-info p { margin: 0; font-size: 14px; color: #444; line-height: 1.6; }
+
+        .product-price { text-align: right; }
+        .price-excl { display: block; font-size: 22px; font-weight: 700; }
+        .price-incl { display: block; font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Selector Grid */
+        .selector-layout {
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 50px;
+        }
+
+        /* Calendar Sidebar */
+        .sidebar h3 { font-size: 18px; margin-bottom: 25px; text-align: center; font-weight: 600; }
+        
+        .calendar-box {
+            background-color: var(--bg-sidebar);
+            border-radius: var(--border-radius);
+            padding: 25px 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .nav-arrow { border: none; background: none; cursor: pointer; font-size: 16px; font-weight: bold; }
+
+        .calendar-header-days {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .day {
+            padding: 10px 0;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 14px;
+            font-weight: 500;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .day:hover:not(.empty) { background-color: rgba(0,0,0,0.05); }
+        .day.selected { background-color: #d2d2d7; position: relative; }
+        .day.selected::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            width: 5px;
+            height: 5px;
+            background: #6e6e73;
+            border-radius: 50%;
+        }
+
+        /* Time Section */
+        .time-content h3 { font-size: 20px; margin-bottom: 35px; font-weight: 700; }
+        
+        .time-group { margin-bottom: 40px; }
+        .group-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 18px;
+            color: #1d1d1f;
+        }
+
+        .slots-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .time-pill {
+            background-color: var(--dark-pill);
+            color: white;
+            border: none;
+            padding: 11px 26px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            min-width: 85px;
+        }
+
+        .time-pill:hover { background-color: #333; }
+        .time-pill.active { background-color: #555; box-shadow: 0 0 0 2px #000; }
+
+        @media (max-width: 900px) {
+            .selector-layout { grid-template-columns: 1fr; }
+            .container { padding: 20px; }
+            .sidebar { max-width: 350px; margin: 0 auto; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="main-title">🗓 Kies uw afhaalmoment</h1>
+
+    <div class="product-summary">
+        <img src="https://via.placeholder.com/150" alt="Product" class="product-img">
+        <div class="product-info">
+            <h2>Marstek venus E 5Kwh versie 3.0 plug-in en play thuisbatterijen met stekker voor stopcontact</h2>
+            <p>Schaal: 1 batterij 5 Kwh<br>
+               Sturing aan je digitale meter: Zonder P1 meter<br>
+               Splitter: Zonder splitter voor digitale meter<br>
+               Installatie locatie: Ik plaats de batterij in België (incl. Bebat)</p>
+        </div>
+        <div class="product-price">
+            <span class="price-excl">€1.070,00 Excl. BTW</span>
+            <span class="price-incl">€1.294,70 incl. BTW</span>
+        </div>
+    </div>
+
+    <div class="selector-layout">
+        <aside class="sidebar">
+            <h3>Selecteer een datum</h3>
+            <div class="calendar-box">
+                <div class="calendar-nav">
+                    <span>Apr 2026</span>
+                    <button class="nav-arrow">❯</button>
+                </div>
+                <div class="calendar-header-days">
+                    <span>Ma</span><span>Di</span><span>Woe</span><span>Don</span><span>Vrij</span>
+                </div>
+                <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+        </aside>
+
+        <main class="time-content">
+            <h3 id="timeHeader">Selecteer een tijdstip voor vrijdag 21 april</h3>
+            
+            <div class="time-group">
+                <div class="group-label">☀️ Voormiddag</div>
+                <div class="slots-flex" id="morningSlots"></div>
+            </div>
+
+            <div class="time-group">
+                <div class="group-label">🌤 Namiddag</div>
+                <div class="slots-flex" id="afternoonSlots"></div>
+            </div>
+
+            <div class="time-group">
+                <div class="group-label">🌙 's avonds</div>
+                <div class="slots-flex" id="eveningSlots"></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const morningArr = ['08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00'];
+    const afternoonArr = ['14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'];
+    const eveningArr = ['17:30', '18:00'];
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        // Mimicking your 5-day week layout (April 2026)
+        const days = [2,3,4,5,6, 9,10,11,12,13, 16,17,18,19,20, 23,24,25,26,27, 30];
+
+        days.forEach(d => {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day';
+            dayDiv.innerText = d;
+            if(d === 19) dayDiv.classList.add('selected');
+            dayDiv.onclick = () => {
+                document.querySelectorAll('.day').forEach(el => el.classList.remove('selected'));
+                dayDiv.classList.add('selected');
+                document.getElementById('timeHeader').innerText = `Selecteer een tijdstip voor dag ${d} april`;
+            };
+            grid.appendChild(dayDiv);
+        });
+    }
+
+    function renderTimeSlots(containerId, times) {
+        const container = document.getElementById(containerId);
+        times.forEach(t => {
+            const btn = document.createElement('button');
+            btn.className = 'time-pill';
+            btn.innerText = t;
+            btn.onclick = () => {
+                document.querySelectorAll('.time-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    window.onload = () => {
+        renderCalendar();
+        renderTimeSlots('morningSlots', morningArr);
+        renderTimeSlots('afternoonSlots', afternoonArr);
+        renderTimeSlots('eveningSlots', eveningArr);
+    };
+</script>
+
+</body>
+</html>
