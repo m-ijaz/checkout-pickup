@@ -81,33 +81,43 @@
         /* Calendar sidebar */
         .cpw-sidebar__heading { font-size: 16px; font-weight: 600; text-align: center; margin: 0 0 18px 0; }
         .cpw-calendar { background: var(--cpw-bg-sidebar); border-radius: var(--cpw-radius); padding: 20px 16px; }
-        .cpw-cal-nav  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+        .cpw-cal-nav  { display: flex; justify-content: center; align-items: center; margin-bottom: 14px; }
         .cpw-cal-nav__label { font-weight: 700; font-size: 14px; }
-        .cpw-cal-nav__btn {
-            background: none; border: none; cursor: pointer;
-            font-size: 22px; font-weight: bold; color: var(--cpw-text-main);
-            padding: 2px 8px; border-radius: 6px; line-height: 1;
+
+        /* Date card nav */
+        .cpw-card-nav { display: flex; align-items: center; gap: 8px; }
+        .cpw-card-nav__btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: var(--cpw-pill-dark); border: none; cursor: pointer;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 18px; font-weight: bold; line-height: 1;
             transition: background 0.15s;
         }
-        .cpw-cal-nav__btn:hover    { background: rgba(0,0,0,0.08); }
-        .cpw-cal-nav__btn:disabled { opacity: 0.25; cursor: default; }
-        .cpw-cal-headers {
-            display: grid; grid-template-columns: repeat(5,1fr);
-            text-align: center; font-weight: 600; font-size: 12px; color: #666; margin-bottom: 8px;
+        .cpw-card-nav__btn:hover:not(:disabled) { background: #333; }
+        .cpw-card-nav__btn:disabled { opacity: 0.25; cursor: default; }
+
+        /* Date cards */
+        .cpw-date-cards { display: flex; gap: 8px; flex: 1; align-items: stretch; }
+        .cpw-date-card {
+            flex: 1; background: #1D1D1F; border-radius: 32px; padding: 16px 12px;
+            cursor: pointer; min-height: 100px; display: flex; flex-direction: column;
+            justify-content: center; color: white; border: 2px solid transparent;
+            transition: background 0.15s;
         }
-        .cpw-cal-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 4px; }
-        .cpw-day {
-            aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 500; border-radius: 50%; cursor: pointer;
-            transition: background 0.15s; position: relative; border: none; background: none;
-            color: var(--cpw-text-main); padding: 0;
+        .cpw-date-card:hover { background: #2d2d2f; }
+        .cpw-date-card--selected { border-color: rgba(255,255,255,0.3); }
+        .cpw-date-card__radio {
+            width: 16px; height: 16px; border: 2px solid white; border-radius: 50%;
+            margin-bottom: 8px; position: relative; flex-shrink: 0;
         }
-        .cpw-day:hover { background: rgba(0,0,0,0.07); }
-        .cpw-day--selected { background: var(--cpw-selected) !important; color: #fff !important; }
-        .cpw-day--today:not(.cpw-day--selected)::after {
-            content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; background: var(--cpw-selected); border-radius: 50%;
+        .cpw-date-card--selected .cpw-date-card__radio::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 8px; height: 8px;
+            background: white; border-radius: 50%;
         }
+        .cpw-date-card__day { font-size: 18px; font-weight: 700; color: white; line-height: 1.2; }
+        .cpw-date-card__num { font-size: 22px; font-weight: 700; color: white; line-height: 1.1; }
+        .cpw-date-card__mon { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 2px; }
 
         /* Time slots panel */
         .cpw-times__heading { font-size: 20px; font-weight: 700; margin: 0 0 28px 0; }
@@ -169,8 +179,10 @@
             .cpw-slots { gap: 8px; }
             .cpw-time-group__label { font-size: 14px; }
             .cpw-time-group { margin-bottom: 24px; }
-            .cpw-cal-grid { gap: 3px; }
             .cpw-calendar { padding: 14px 10px; }
+            .cpw-date-card { padding: 12px 8px; border-radius: 24px; }
+            .cpw-date-card__day { font-size: 15px; }
+            .cpw-date-card__num { font-size: 18px; }
         }
     </style>
 </head>
@@ -215,14 +227,13 @@
             <h3 class="cpw-sidebar__heading">Selecteer een datum</h3>
             <div class="cpw-calendar">
                 <div class="cpw-cal-nav">
-                    <button class="cpw-cal-nav__btn" id="cpwPrevMonth" aria-label="Vorige maand">&#8249;</button>
                     <span class="cpw-cal-nav__label" id="cpwMonthLabel"></span>
-                    <button class="cpw-cal-nav__btn" id="cpwNextMonth" aria-label="Volgende maand">&#8250;</button>
                 </div>
-                <div class="cpw-cal-headers">
-                    <span>Ma</span><span>Di</span><span>Wo</span><span>Do</span><span>Vr</span>
+                <div class="cpw-card-nav">
+                    <button class="cpw-card-nav__btn" id="cpwPrevDay" aria-label="Vorige dag">&#8249;</button>
+                    <div class="cpw-date-cards" id="cpwDateCards"></div>
+                    <button class="cpw-card-nav__btn" id="cpwNextDay" aria-label="Volgende dag">&#8250;</button>
                 </div>
-                <div class="cpw-cal-grid" id="cpwCalGrid"></div>
             </div>
         </aside>
 
@@ -270,73 +281,99 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var NL_MONTHS = ['januari','februari','maart','april','mei','juni',
                      'juli','augustus','september','oktober','november','december'];
+    var NL_MONTHS_SHORT = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
     var NL_DAYS   = ['maandag','dinsdag','woensdag','donderdag','vrijdag'];
+    var NL_DAYS_SHORT = ['Ma','Di','Woe','Don','Vrij'];
 
     var today = new Date();
     today.setHours(0,0,0,0);
 
-    var viewYear     = today.getFullYear();
-    var viewMonth    = today.getMonth();
+    var viewOffset   = 0;
     var selectedDate = null;
     var selectedTime = null;
 
-    var calGrid     = document.getElementById('cpwCalGrid');
     var monthLabel  = document.getElementById('cpwMonthLabel');
-    var prevBtn     = document.getElementById('cpwPrevMonth');
-    var nextBtn     = document.getElementById('cpwNextMonth');
+    var prevBtn     = document.getElementById('cpwPrevDay');
+    var nextBtn     = document.getElementById('cpwNextDay');
     var timeHeader  = document.getElementById('cpwTimeHeader');
     var confirmBtn  = document.getElementById('cpwConfirmBtn');
     var confirmNote = document.getElementById('cpwConfirmNote');
 
     function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-    function renderCalendar() {
-        calGrid.innerHTML = '';
-        monthLabel.textContent = capitalize(NL_MONTHS[viewMonth]) + ' ' + viewYear;
+    function getWeekday(offset) {
+        var d = new Date(today);
+        /* advance past any weekend on 'today' itself */
+        while (d.getDay() === 0 || d.getDay() === 6) { d.setDate(d.getDate() + 1); }
+        /* advance 'offset' additional weekdays */
+        var count = 0;
+        while (count < offset) {
+            d.setDate(d.getDate() + 1);
+            if (d.getDay() !== 0 && d.getDay() !== 6) { count++; }
+        }
+        return d;
+    }
 
-        var nowFirst  = new Date(today.getFullYear(), today.getMonth(), 1);
-        var viewFirst = new Date(viewYear, viewMonth, 1);
-        prevBtn.disabled = viewFirst <= nowFirst;
+    function renderDateCards() {
+        var container = document.getElementById('cpwDateCards');
+        container.innerHTML = '';
 
-        var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        var dates = [
+            getWeekday(viewOffset),
+            getWeekday(viewOffset + 1),
+            getWeekday(viewOffset + 2)
+        ];
 
-        for (var d = 1; d <= daysInMonth; d++) {
-            var date = new Date(viewYear, viewMonth, d);
-            var dow  = date.getDay();
-            if (dow === 0 || dow === 6) continue; /* skip weekends */
-            if (date < today) continue;            /* skip past dates */
+        var first = dates[0];
+        monthLabel.textContent = capitalize(NL_MONTHS[first.getMonth()]) + ' ' + first.getFullYear();
+        prevBtn.disabled = (viewOffset === 0);
 
-            var btn = document.createElement('button');
-            btn.className   = 'cpw-day';
-            btn.textContent = d;
-            btn.setAttribute('aria-label', NL_DAYS[dow - 1] + ' ' + d + ' ' + NL_MONTHS[viewMonth]);
+        dates.forEach(function (date) {
+            var dow     = date.getDay(); /* 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri (weekends skipped) */
+            var dayAbbr = NL_DAYS_SHORT[dow - 1];
+            var dateNum = date.getDate();
+            var monAbbr = NL_MONTHS_SHORT[date.getMonth()];
 
-            if (date.getTime() === today.getTime()) btn.classList.add('cpw-day--today');
-            if (selectedDate && date.getTime() === selectedDate.getTime()) btn.classList.add('cpw-day--selected');
+            var card = document.createElement('div');
+            card.className = 'cpw-date-card';
+            if (selectedDate && date.getTime() === selectedDate.getTime()) {
+                card.classList.add('cpw-date-card--selected');
+            }
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('aria-label', NL_DAYS[dow - 1] + ' ' + dateNum + ' ' + NL_MONTHS[date.getMonth()]);
+            card.innerHTML =
+                '<div class="cpw-date-card__radio"></div>' +
+                '<div class="cpw-date-card__day">'  + dayAbbr + '</div>' +
+                '<div class="cpw-date-card__num">'  + dateNum + '</div>' +
+                '<div class="cpw-date-card__mon">'  + monAbbr + '</div>';
 
             (function (capturedDate) {
-                btn.addEventListener('click', function () {
+                card.addEventListener('click', function () {
                     selectedDate = capturedDate;
                     selectedTime = null;
-                    renderCalendar();
+                    renderDateCards();
                     updateTimeHeader();
                     renderAllSlots();
                     updateConfirm();
                 });
+                card.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+                });
             })(date);
 
-            calGrid.appendChild(btn);
-        }
+            container.appendChild(card);
+        });
     }
 
     prevBtn.addEventListener('click', function () {
-        if (viewMonth === 0) { viewMonth = 11; viewYear--; } else { viewMonth--; }
-        renderCalendar();
+        viewOffset = Math.max(0, viewOffset - 1);
+        renderDateCards();
     });
 
     nextBtn.addEventListener('click', function () {
-        if (viewMonth === 11) { viewMonth = 0; viewYear++; } else { viewMonth++; }
-        renderCalendar();
+        viewOffset += 1;
+        renderDateCards();
     });
 
     function updateTimeHeader() {
@@ -402,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     /* Init */
-    renderCalendar();
+    renderDateCards();
     renderAllSlots();
     updateConfirm();
 });
